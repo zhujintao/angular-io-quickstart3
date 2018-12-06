@@ -1,0 +1,31 @@
+apiVersion: skaffold/v1alpha2
+kind: Config
+build:
+  tagPolicy:
+    envTemplate:
+      template: "{{.DOCKER_REGISTRY}}/zhujintao/angular-io-quickstart2:{{.VERSION}}"
+  artifacts:
+  - imageName: changeme
+    workspace: .
+    docker: {}
+  local: {}
+deploy:
+  kubectl:
+    manifests:
+profiles:
+- name: dev
+  build:
+    tagPolicy:
+      envTemplate:
+        template: "{{.DOCKER_REGISTRY}}/zhujintao/angular-io-quickstart2:{{.DIGEST_HEX}}"
+    artifacts:
+    - docker: {}
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: angular-io-quickstart2
+        chartPath: charts/angular-io-quickstart2
+        setValueTemplates:
+          image.repository: "{{.DOCKER_REGISTRY}}/zhujintao/angular-io-quickstart2"
+          image.tag: "{{.DIGEST_HEX}}"
